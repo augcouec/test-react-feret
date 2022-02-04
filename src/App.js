@@ -93,14 +93,7 @@ function App() {
     console.log(currentName, currentRank);
     setCanSubmit(formIsFullyFilled);
     updateFilters();
-  }, [
-    currentAppellation,
-    currentColor,
-    currentType,
-    currentSweetnessLevel,
-    currentRank,
-    currentName
-  ]);
+  });
 
   //toggle modal / call usemodalfct
   const {
