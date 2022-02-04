@@ -79,6 +79,7 @@ function App() {
     setSweetnessLevelFilters(validSweetnessLevels);
   }
 
+  //watcher to update the select option after each change
   useEffect(() => {
     const formIsFullyFilled =
       currentColor &&
@@ -97,10 +98,11 @@ function App() {
     currentColor,
     currentType,
     currentSweetnessLevel,
-    currentRank
+    currentRank,
+    currentName
   ]);
 
-  //toggle modal
+  //toggle modal / call usemodalfct
   const {
     isShowing: istoggleWineFormShowed,
     toggle: toggleWineForm
@@ -116,7 +118,7 @@ function App() {
         <div className="hero_container">
           <img src={hero} alt="hero"></img>
         </div>
-        <h1>Ajouter un vin</h1>
+        <h1>Ajouter</h1>
         <div className="text">
           <p>
             <img src={fleche} alt="fleche"></img>
