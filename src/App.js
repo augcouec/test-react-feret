@@ -9,6 +9,7 @@ import useModal from './useModal';
 import { wines, appellations, colors, types, sweetnessLevels } from './data.js';
 
 function App() {
+  //states
   const [currentAppellations, setAppellations] = useState(appellations);
   const [currentColors, setColors] = useState(colors);
   const [currentTypes, setTypes] = useState(types);
@@ -24,10 +25,12 @@ function App() {
 
   const [canSubmit, setCanSubmit] = useState(false);
 
+  //refs
   const select1 = useRef(null);
   const select2 = useRef(null);
   const select3 = useRef(null);
 
+  // function to update colors on appellation change
   const appellationChange = (e) => {
     const validWines = currentWines.filter(
       (wine) => e.target.value === wine.appellationId
@@ -44,6 +47,8 @@ function App() {
     setColors(validColors);
     setCurrentWines(validWines);
   };
+
+  // function to update type on color change
   const colorChange = (e) => {
     const validWines = currentWines.filter(
       (wine) => e.target.value === wine.colorId
@@ -62,6 +67,8 @@ function App() {
     setTypes(validTypes);
     setCurrentWines(validWines);
   };
+
+  // function to update sweetnesslevel on type change
 
   const typeChange = (e) => {
     const validWines = currentWines.filter(
@@ -83,6 +90,8 @@ function App() {
     setCurrentWines(validWines);
   };
 
+  // function to update all field when there is only one combination
+
   const uniqueSelector = (validWines) => {
     const appellationUnique = currentAppellations.filter((appellation) => {
       return validWines.find((w) => w.appellationId === appellation.id)
@@ -102,6 +111,7 @@ function App() {
           : false;
       }
     );
+    //use ref to remove unuse option
     select1.current.removeChild(select1.current.children[0]);
     select2.current.removeChild(select2.current.children[0]);
     select3.current.removeChild(select3.current.children[0]);
@@ -112,7 +122,7 @@ function App() {
     setSweetnessLevels(sweetnessLevelUnique);
   };
 
-  //watcher to update the select option after each change
+  //watcher to update button when form is fully filled
   useEffect(() => {
     const formIsFullyFilled =
       appellations &&
@@ -252,7 +262,6 @@ function App() {
                 <img src={cross} alt="supprimer"></img>
               </div>
             </fieldset>
-
             <fieldset>
               <legend htmlFor="sweetnessLevels">Sucrosité *</legend>
               <select ref={select3} name="sweetnessLevels" type="select">
