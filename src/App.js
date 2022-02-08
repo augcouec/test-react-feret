@@ -1,104 +1,143 @@
-import "./App.scss";
-import { useEffect, useState } from "react";
-import hero from "./assets/hero.png";
-import fleche from "./assets/fleche.svg";
-import cross from "./assets/cross.svg";
-import Modal from "./Modal.js";
-import useModal from "./useModal";
+import './App.scss';
+import { useEffect, useState, useRef } from 'react';
+import hero from './assets/hero.png';
+import fleche from './assets/fleche.svg';
+import cross from './assets/cross.svg';
+import Modal from './Modal.js';
+import useModal from './useModal';
 
-import { wines, appellations, colors, types, sweetnessLevels } from "./data.js";
+import { wines, appellations, colors, types, sweetnessLevels } from './data.js';
 
 function App() {
-  //state definition
-  const [appellationFilters, setAppellationFilters] = useState(appellations);
-  const [colorFilters, setColorFilters] = useState(colors);
-  const [typeFilters, setTypeFilters] = useState(types);
-  const [sweetnessLevelFilters, setSweetnessLevelFilters] = useState(
+  const [currentAppellations, setAppellations] = useState(appellations);
+  const [currentColors, setColors] = useState(colors);
+  const [currentTypes, setTypes] = useState(types);
+  const [currentSweetnessLevels, setSweetnessLevels] = useState(
     sweetnessLevels
   );
-
-  const [currentAppellation, setCurrentAppellation] = useState(null);
-  const [currentColor, setCurrentColor] = useState(null);
-  const [currentType, setCurrentType] = useState(null);
-  const [currentSweetnessLevel, setCurrentSweetnessLevel] = useState(null);
+  const [currentWines, setCurrentWines] = useState(wines);
   const [currentRank, setCurrentRank] = useState(null);
   const [currentName, setCurrentName] = useState(null);
+  const [markerAppellation, setMarkerAppellation] = useState(null);
+  const [markerColor, setMarkerColor] = useState(null);
+  const [markerType, setMarkerType] = useState(null);
 
   const [canSubmit, setCanSubmit] = useState(false);
 
-  //get valid wine combinations for select options
-  function getValidWines() {
-    return wines.filter(wine => {
-      if (currentAppellation && currentAppellation !== wine.appellationId) {
-        return false;
-      }
-      if (currentColor && currentColor !== wine.colorId) {
-        return false;
-      }
-      if (currentType && currentType !== wine.typeId) {
-        return false;
-      }
-      if (
-        currentSweetnessLevel &&
-        currentSweetnessLevel !== wine.sweetnessLevelId
-      ) {
-        return false;
-      }
-      return true;
+  const select1 = useRef(null);
+  const select2 = useRef(null);
+  const select3 = useRef(null);
+
+  const appellationChange = (e) => {
+    const validWines = currentWines.filter(
+      (wine) => e.target.value === wine.appellationId
+    );
+    const validColors = colors.filter((color) => {
+      return validWines.find((w) => w.colorId === color.id) ? true : false;
     });
-  }
 
-  // update the possibilities for the select option
-  function updateFilters() {
-    const validWines = getValidWines();
+    setMarkerColor(validWines);
 
-    const validAppellations = appellations.filter(appellation => {
-      return validWines.find(w => w.appellationId === appellation.id)
+    if (validWines.length === 1) {
+      uniqueSelector(validWines);
+    }
+    setColors(validColors);
+    setCurrentWines(validWines);
+  };
+  const colorChange = (e) => {
+    const validWines = currentWines.filter(
+      (wine) => e.target.value === wine.colorId
+    );
+
+    const validTypes = types.filter((type) => {
+      return validWines.find((w) => w.typeId === type.id) ? true : false;
+    });
+
+    setMarkerType(validWines);
+
+    if (validWines.length === 1) {
+      uniqueSelector(validWines);
+    }
+
+    setTypes(validTypes);
+    setCurrentWines(validWines);
+  };
+
+  const typeChange = (e) => {
+    const validWines = currentWines.filter(
+      (wine) => e.target.value === wine.typeId
+    );
+
+    const validSweetnessLevel = sweetnessLevels.filter((sweetnessLevel) => {
+      return validWines.find((w) => w.sweetnessLevelId === sweetnessLevel.id)
         ? true
         : false;
     });
 
-    const validColors = colors.filter(color => {
-      return validWines.find(w => w.colorId === color.id) ? true : false;
-    });
+    setMarkerAppellation(validWines);
 
-    const validTypes = types.filter(type => {
-      return validWines.find(w => w.typeId === type.id) ? true : false;
-    });
+    if (validWines.length === 1) {
+      uniqueSelector(validWines);
+    }
+    setSweetnessLevels(validSweetnessLevel);
+    setCurrentWines(validWines);
+  };
 
-    const validSweetnessLevels = sweetnessLevels.filter(sweetnessLevel => {
-      return validWines.find(w => w.sweetnessLevelId === sweetnessLevel.id)
+  const uniqueSelector = (validWines) => {
+    const appellationUnique = currentAppellations.filter((appellation) => {
+      return validWines.find((w) => w.appellationId === appellation.id)
         ? true
         : false;
     });
+    const colorUnique = currentColors.filter((color) => {
+      return validWines.find((w) => w.colorId === color.id) ? true : false;
+    });
+    const typeUnique = currentTypes.filter((type) => {
+      return validWines.find((w) => w.typeId === type.id) ? true : false;
+    });
+    const sweetnessLevelUnique = currentSweetnessLevels.filter(
+      (sweetnessLevel) => {
+        return validWines.find((w) => w.sweetnessLevelId === sweetnessLevel.id)
+          ? true
+          : false;
+      }
+    );
+    select1.current.removeChild(select1.current.children[0]);
+    select2.current.removeChild(select2.current.children[0]);
+    select3.current.removeChild(select3.current.children[0]);
 
-    //set all valid options in each state
-    setAppellationFilters(validAppellations);
-    setColorFilters(validColors);
-    setTypeFilters(validTypes);
-    setSweetnessLevelFilters(validSweetnessLevels);
-  }
+    setAppellations(appellationUnique);
+    setColors(colorUnique);
+    setTypes(typeUnique);
+    setSweetnessLevels(sweetnessLevelUnique);
+  };
 
   //watcher to update the select option after each change
   useEffect(() => {
     const formIsFullyFilled =
-      currentColor &&
-      currentType &&
-      currentSweetnessLevel &&
-      currentAppellation &&
+      appellations &&
+      colors &&
+      types &&
+      sweetnessLevels &&
       currentRank &&
       currentName
         ? true
         : false;
-    console.log(currentName, currentRank);
     setCanSubmit(formIsFullyFilled);
-    updateFilters();
-  });
+  }, [
+    currentAppellations,
+    currentColors,
+    currentTypes,
+    currentSweetnessLevels,
+    currentWines,
+    currentRank,
+    currentName,
+  ]);
 
   //toggle modal / call usemodalfct
   const {
     isShowing: istoggleWineFormShowed,
-    toggle: toggleWineForm
+    toggle: toggleWineForm,
   } = useModal();
 
   return (
@@ -130,7 +169,7 @@ function App() {
                 type="text"
                 maxLength={25}
                 placeholder="Château Latour"
-                onChange={e => {
+                onChange={(e) => {
                   setCurrentName(e.target.value);
                 }}
               ></input>
@@ -140,12 +179,10 @@ function App() {
               <select
                 name="appellation"
                 type="select"
-                onChange={e => {
-                  setCurrentAppellation(e.target.value);
-                }}
+                onChange={appellationChange}
               >
-                <option value={null}>--Selection de l'appellation--</option>
-                {appellationFilters.map((appellation, key) => (
+                <option value={''}>--Selection de l'appellation--</option>
+                {appellations.map((appellation, key) => (
                   <option key={key} value={appellation.id}>
                     {appellation.label}
                   </option>
@@ -154,7 +191,8 @@ function App() {
               <div
                 className="remove"
                 onClick={() => {
-                  setCurrentAppellation(null);
+                  setCurrentWines(wines);
+                  setColors(colors);
                 }}
               >
                 <img src={cross} alt="supprimer"></img>
@@ -165,14 +203,13 @@ function App() {
             <fieldset>
               <legend htmlFor="color">Couleur *</legend>
               <select
+                ref={select1}
                 name="color"
                 type="select"
-                onChange={e => {
-                  setCurrentColor(e.target.value);
-                }}
+                onChange={colorChange}
               >
-                <option value={null}>--Selection de la couleur--</option>
-                {colorFilters.map((color, key) => (
+                <option value={' '}>--Selection de la couleur--</option>
+                {currentColors.map((color, key) => (
                   <option key={key} value={color.id}>
                     {color.label}
                   </option>
@@ -181,7 +218,8 @@ function App() {
               <div
                 className="remove"
                 onClick={() => {
-                  setCurrentColor(null);
+                  setCurrentWines(markerAppellation);
+                  setTypes(types);
                 }}
               >
                 <img src={cross} alt="supprimer"></img>
@@ -191,15 +229,14 @@ function App() {
             <fieldset>
               <legend htmlFor="type">Type *</legend>
               <select
+                ref={select2}
                 name="type"
                 type="select"
-                onChange={e => {
-                  setCurrentType(e.target.value);
-                }}
+                onChange={typeChange}
               >
-                <option value={null}>--Selection du type--</option>
+                <option value={' '}>--Selection du type--</option>
 
-                {typeFilters.map((type, key) => (
+                {currentTypes.map((type, key) => (
                   <option key={key} value={type.id}>
                     {type.label}
                   </option>
@@ -208,7 +245,8 @@ function App() {
               <div
                 className="remove"
                 onClick={() => {
-                  setCurrentColor(null);
+                  setCurrentWines(markerColor);
+                  setCurrentName();
                 }}
               >
                 <img src={cross} alt="supprimer"></img>
@@ -217,15 +255,9 @@ function App() {
 
             <fieldset>
               <legend htmlFor="sweetnessLevels">Sucrosité *</legend>
-              <select
-                name="sweetnessLevels"
-                type="select"
-                onChange={e => {
-                  setCurrentSweetnessLevel(e.target.value);
-                }}
-              >
-                <option value={null}>--Selection de la sucrosité--</option>
-                {sweetnessLevelFilters.map((sweetnessLevel, key) => (
+              <select ref={select3} name="sweetnessLevels" type="select">
+                <option value={' '}>--Selection de la sucrosité--</option>
+                {currentSweetnessLevels.map((sweetnessLevel, key) => (
                   <option key={key} value={sweetnessLevel.id}>
                     {sweetnessLevel.label}
                   </option>
@@ -234,7 +266,7 @@ function App() {
               <div
                 className="remove"
                 onClick={() => {
-                  setCurrentColor(null);
+                  setCurrentWines(markerType);
                 }}
               >
                 <img src={cross} alt="supprimer"></img>
@@ -249,8 +281,8 @@ function App() {
                   type="radio"
                   id="first"
                   name="rank"
-                  value={"first"}
-                  onClick={e => {
+                  value={'first'}
+                  onClick={(e) => {
                     setCurrentRank(e.target.value);
                   }}
                 ></input>
@@ -261,8 +293,8 @@ function App() {
                   type="radio"
                   id="second"
                   name="rank"
-                  value={"second"}
-                  onClick={e => {
+                  value={'second'}
+                  onClick={(e) => {
                     setCurrentRank(e.target.value);
                   }}
                 ></input>
@@ -273,8 +305,8 @@ function App() {
                   type="radio"
                   id="other"
                   name="rank"
-                  value={"other"}
-                  onClick={e => {
+                  value={'other'}
+                  onClick={(e) => {
                     setCurrentRank(e.target.value);
                   }}
                 ></input>
